@@ -2,6 +2,7 @@
 
 return [
 
-    // nothing here yet...
+    // The Offer Engine class:
+    'offer_engine' => 'AscentCreative\Offer\Engines\OfferEngine',
     
 ];

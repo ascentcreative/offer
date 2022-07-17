@@ -4,13 +4,22 @@ namespace AscentCreative\Offer;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Routing\Router;
+use AscentCreative\Offer\Providers\EventServiceProvider;
 
 class OfferServiceProvider extends ServiceProvider
 {
   public function register()
   {
+
+    $this->app->register(EventServiceProvider::class);
     //
+
+    $this->app->bind('offer:offer_engine',function(){
+        $cls = config('offer.offer_engine');
+        return new $cls();
+    });
 
     // Register the helpers php file which includes convenience functions:
     // require_once (__DIR__.'/helpers.php');
@@ -18,6 +27,8 @@ class OfferServiceProvider extends ServiceProvider
     $this->mergeConfigFrom(
         __DIR__.'/../config/offer.php', 'offer'
     );
+
+    $this->registerSchemaMacros();
 
   }
 
@@ -58,6 +69,37 @@ class OfferServiceProvider extends ServiceProvider
       $this->publishes([
         __DIR__.'/config/offer.php' => config_path('offer.php'),
       ]);
+
+    }
+
+
+
+    public function registerSchemaMacros() {
+
+        \Illuminate\Database\Schema\Blueprint::macro('discountable', function() {
+            if(!Schema::hasColumn($this->table, 'offer_id')) {
+                $this->integer("offer_id")->nullable()->before('created_at');
+            }
+            if(!Schema::hasColumn($this->table, 'offer_alias')) {
+                $this->string("offer_alias")->nullable()->before('created_at');
+            }
+            if(!Schema::hasColumn($this->table, 'original_price')) {
+                $this->float("original_price")->nullable()->before('created_at');
+            }
+            
+        });
+
+        \Illuminate\Database\Schema\Blueprint::macro('dropDiscountable', function() {
+            if(Schema::hasColumn($this->table, 'offer_id')) {
+                $this->dropColumn("offer_id");
+            }
+            if(Schema::hasColumn($this->table, 'offer_alias')) {
+                $this->dropColumn("offer_alias");
+            }
+            if(Schema::hasColumn($this->table, 'original_price')) {
+                $this->dropColumn("original_price");
+            }
+        });
 
     }
 
