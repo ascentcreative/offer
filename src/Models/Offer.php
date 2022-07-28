@@ -20,6 +20,10 @@ class Offer extends Model
                          'in_conjunction', 'processing_order', 'is_enabled', 'code'];
 
 
+    public $casts = [
+        'config'=>'array',
+    ];
+
     public function discountables() {
         return $this->hasMany(Discountable::class); //, 'offer_discountables');
     }
