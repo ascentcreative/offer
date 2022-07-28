@@ -30,9 +30,10 @@ class Offer extends BaseForm {
 
 
                     // Subform loader (linked to the above class field)
-                    SubformLoader::make('sf_rule', 'rule_class', function($item) {
-                        // resolve the subform to load.
-                    }), 
+                    SubformLoader::make('sf_rule', 'rule_class', [
+                        'AscentCreative\Offer\Rules\BuyABCForY' => 'AscentCreative\Offer\Forms\Admin\Rules\BuyABCForY',
+                        'AscentCreative\Offer\Rules\BuyXForY' => 'AscentCreative\Offer\Forms\Admin\Rules\BuyXForY'
+                    ]), 
 
                     
 
