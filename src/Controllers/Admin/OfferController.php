@@ -17,6 +17,9 @@ class OfferController extends AdminBaseController
     // static $bladePath = "checkout::admin.orders";
     static $formClass = 'AscentCreative\Offer\Forms\Admin\Offer';
 
+    public $ignoreScopes = ['published'];
+
+    public $indexSort = ['processing_order'];
   
     public function __construct() {
         parent::__construct();
@@ -30,6 +33,21 @@ class OfferController extends AdminBaseController
 
     }
 
+
+    public function getRowClassResolvers() : array {
+
+        return [
+
+            function($item) {
+                return $item->isPublished ? 'published' : 'hidden';
+            },
+
+        ];
+
+    }
+
+
+
     public function getColumns() : array {
 
         return [
@@ -41,7 +59,26 @@ class OfferController extends AdminBaseController
             Column::make('Rule')
                 ->valueProperty('rule_class'),
 
-            
+            Column::make('Publishing')
+                ->titleSpan(3)
+                ->width('1%')
+                ->valueProperty('publish_status_icon'),
+
+            Column::make('')
+                ->showTitle(false)
+                ->noWrap(true)
+                ->value(function($item) {
+                    return $item->publish_start ?? 'Immediate'; 
+                }),
+
+
+            Column::make('')
+                ->showTitle(false)
+                ->noWrap(true)
+                ->value(function($item) {
+                    return $item->publish_end ?? 'Indefinite'; 
+                }),
+                
 
         ];
 
