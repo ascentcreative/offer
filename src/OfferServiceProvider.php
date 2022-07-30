@@ -16,6 +16,10 @@ class OfferServiceProvider extends ServiceProvider
     $this->app->register(EventServiceProvider::class);
     //
 
+    $this->app->singleton('offer:discountables',function(){
+        return new \AscentCreative\Offer\Registries\Discountables();
+    });
+
     $this->app->bind('offer:offer_engine',function(){
         $cls = config('offer.offer_engine');
         return new $cls();
@@ -30,18 +34,23 @@ class OfferServiceProvider extends ServiceProvider
 
     $this->registerSchemaMacros();
 
+    
+    
+
   }
 
   public function boot()
   {
 
-    $this->loadViewsFrom(__DIR__.'/../resources/views', 'help');
+    $this->loadViewsFrom(__DIR__.'/../resources/views', 'offer');
 
     $this->loadRoutesFrom(__DIR__.'/../routes/offer-web.php');
 
     $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
 
     $this->bootComponents();
+
+    // $this->findDiscountables();
 
 
   }
@@ -102,6 +111,9 @@ class OfferServiceProvider extends ServiceProvider
         });
 
     }
+
+
+
 
 
 
