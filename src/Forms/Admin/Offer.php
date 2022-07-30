@@ -5,8 +5,10 @@ use AscentCreative\CMS\Forms\Admin\BaseForm;
 use AscentCreative\CMS\Forms\Structure\Screenblock;
 
 use AscentCreative\Forms\Fields\Input;
+use AscentCreative\Forms\Fields\MorphPivot;
 use AscentCreative\Forms\Fields\Options;
 use AscentCreative\Forms\Structure\SubformLoader;
+use AscentCreative\Forms\Structure\HTML;
 
 class Offer extends BaseForm {
 
@@ -18,26 +20,57 @@ class Offer extends BaseForm {
 
             Screenblock::make('general')
                 ->children([
+
+                    HTML::make('<div class="flex flex-align-start">', '</div>')
+                        ->children([
+                            HTML::make('<div style="flex-grow: 1">', '</div>')
+                                ->children([
+
+                                    Input::make('alias', 'Alias'),
+
+                                    Input::make('code', 'Code')
+                                        ->description('leave blank to automatically apply when the relevant products are added to the basket.'),
+
+                                    // Class Selector (just a select, linked to the list of classes registered?)
+                                    Options::make('rule_class', 'Rule')
+                                        ->options([
+                                            'AscentCreative\Offer\Rules\BuyABCForY'=>'Buy ABC For £Y',
+                                            'AscentCreative\Offer\Rules\BuyXForY'=>'Buy X For £Y',
+                                            'AscentCreative\Offer\Rules\PercentDiscount'=>'Discount (%)'
+                                        ]),
                 
-                    Input::make('alias', 'Alias'),
+                
+                                    // Subform loader (linked to the above class field)
+                                    SubformLoader::make('sf_rule', 'rule_class', [
+                                        'AscentCreative\Offer\Rules\BuyABCForY' => 'AscentCreative\Offer\Forms\Admin\Rules\BuyABCForY',
+                                        'AscentCreative\Offer\Rules\BuyXForY' => 'AscentCreative\Offer\Forms\Admin\Rules\BuyXForY',
+                                        'AscentCreative\Offer\Rules\PercentDiscount'=>'AscentCreative\Offer\Forms\Admin\Rules\PercentDiscount'
+                                    ]), 
 
-                    // Class Selector (just a select, linked to the list of classes registered?)
-                    Options::make('rule_class', 'Rule')
-                        ->options([
-                            'AscentCreative\Offer\Rules\BuyABCForY'=>'Buy ABC For £Y',
-                            'AscentCreative\Offer\Rules\BuyXForY'=>'Buy X For £Y'
+                                ]),
+                            // HTML::make('<div class="">', '</div>')
+                                // ->children([
+                                    \AscentCreative\CMS\Forms\Subform\Publishable::make(''),
+                                // ])
                         ]),
-
-
-                    // Subform loader (linked to the above class field)
-                    SubformLoader::make('sf_rule', 'rule_class', [
-                        'AscentCreative\Offer\Rules\BuyABCForY' => 'AscentCreative\Offer\Forms\Admin\Rules\BuyABCForY',
-                        'AscentCreative\Offer\Rules\BuyXForY' => 'AscentCreative\Offer\Forms\Admin\Rules\BuyXForY'
-                    ]), 
+                
+                   
 
                     
 
             ]),
+
+            Screenblock::make('items')
+                ->children([
+
+                    MorphPivot::make('discountables', 'Items')
+                        ->morph('discountable')
+                        ->bladepath('offer::morphpivot')
+                        ->optionRoute(route('offers.autocomplete.sellables'))
+                        ->optionModel('AscentCreative\Offer\Models\Discountable')
+                        ->labelField('label'),
+
+                ]),
 
         ]);
 
