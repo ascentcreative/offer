@@ -9,7 +9,8 @@ class BuyABCForY extends Rule {
 
     static function apply(Offer $offer, $basket) {
        
-        $cfg = json_decode($offer->config);
+        // $cfg = json_decode($offer->config);
+        $cfg = (object) $offer->config;
 
         $items = $offer->applicableItems($basket);
 
@@ -22,15 +23,14 @@ class BuyABCForY extends Rule {
             $iterations = min($iterations, count($grouped[$itemKey] ?? []));
         }
 
-
-        
-
         // iterate the max number of times:
         // foreach($)
 
         // for each iteration
         $idxItem = 0;
         for($i = 0; $i < $iterations; $i++) {
+
+            $application = uniqid();
 
             // get one of each item:
             $oneOfEach=[];
@@ -42,10 +42,19 @@ class BuyABCForY extends Rule {
             $splitPrices = \AscentCreative\CMS\Util\SplitAndRound::process($cfg->price, $oneOfEach->pluck('itemPrice')->toArray());
 
             for($iEach = 0; $iEach < count($oneOfEach); $iEach++) {
-                $oneOfEach[$iEach]->itemPrice = $splitPrices[$iEach];
-                $oneOfEach[$iEach]->offer_id = $offer->id;
-                $oneOfEach[$iEach]->offer_alias = $offer->alias;
-                $oneOfEach[$iEach]->save();
+
+                // store the original price
+                $original = $oneOfEach[$iEach]->itemPrice;
+
+                $value = ($oneOfEach[$iEach]->itemPrice - $splitPrices[$iEach]) * -1;
+               
+                // $oneOfEach[$iEach]->itemPrice = $splitPrices[$iEach];
+                // // $oneOfEach[$iEach]->offer_id = $offer->id;
+                // // $oneOfEach[$iEach]->offer_alias = $offer->alias;
+                // $oneOfEach[$iEach]->save();
+
+                $oneOfEach[$iEach]->offers()->attach($offer, ['value'=>$value, 'application_id'=>$application, 'reset_data'=>['original_price'=>$original]]);
+
             }
 
 
@@ -66,4 +75,10 @@ class BuyABCForY extends Rule {
 
     }
 
-}
+    static function remove(Offer $offer, $target) {
+        // dd($offer->pivot);
+        $target->itemPrice = $offer->pivot->reset_data['original_price'];
+        $target->save();
+    }
+
+ }
