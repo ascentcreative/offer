@@ -32,12 +32,12 @@ class OfferTables extends Migration
         });
 
         // attributes for products
-        Schema::create('offer_offeritems', function(Blueprint $table) {
+        Schema::create('offer_sellables', function(Blueprint $table) {
             $table->id();
 
             $table->integer('offer_id')->index();
-            $table->string('offerable_type')->index();
-            $table->integer('offerable_id')->index();
+            $table->string('sellable_type')->index();
+            $table->integer('sellable_id')->index();
 
             $table->timestamps();
         });
@@ -56,7 +56,7 @@ class OfferTables extends Migration
     {
         //
         Schema::drop('offer_offers');
-        Schema::drop('offer_offeritems');
+        Schema::drop('offer_sellables');
       
     
     }

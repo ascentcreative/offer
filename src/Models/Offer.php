@@ -6,16 +6,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+use AscentCreative\Offer\Models\Offer\Sellable;
+
 use AscentCreative\CMS\Traits\Publishable;
-use AscentCreative\Offer\Traits\HasDiscountables;
+use AscentCreative\Offer\Traits\HasSellables;
 
 /**
  * Represents an offer in the system (which is processed by a Rule)
  */
 class Offer extends Model 
 {
-    use HasFactory, Publishable, HasDiscountables;
-
+    use HasFactory, Publishable, HasSellables;
 
     public $table = 'offer_offers';
 
@@ -27,9 +28,9 @@ class Offer extends Model
         'config'=>'array',
     ];
 
-    public function discountables() {
-        return $this->hasMany(Discountable::class)
-                ->with('discountable'); //, 'offer_discountables');
+    public function sellables() {
+        return $this->hasMany(Sellable::class)
+                ->with('sellable'); //, 'offer_discountables');
     }
 
     public function applicableItems($basket) {
@@ -44,12 +45,11 @@ class Offer extends Model
                             
                         $q->whereExists(function($q) use ($offer) {
                                 
-                            // where the item is listed in the offer items (discountables... needs a far better name)
+                            // where the item is listed in the offer items (sellables...)
                             $q->select('*')
-                                ->from('offer_discountables')
-                                ->where('discountable_type', DB::Raw('sellable_type'))
-                                ->where('discountable_id', DB::Raw('sellable_id'))
-                                //'_', discountable_id)"), DB::Raw("concat(sellable_type, '_', sellable_id)"))
+                                ->from('offer_sellables')
+                                ->where('offer_sellables.sellable_type', DB::Raw('checkout_order_items.sellable_type'))
+                                ->where('offer_sellables.sellable_id', DB::Raw('checkout_order_items.sellable_id'))
                                 ->where('offer_id', $offer->id);
 
                         });
@@ -57,9 +57,9 @@ class Offer extends Model
                         // look for any discountables which are sellable_groups
 
                         $groups = [];
-                        foreach($offer->discountables as $disc) {
-                            if(method_exists($disc->discountable, 'resolveSellables')) {
-                                $groups[] = $disc;
+                        foreach($offer->sellables as $sellable) {
+                            if(method_exists($sellable->sellable, 'resolveSellables')) {
+                                $groups[] = $sellable;
                             }
                         }
 
@@ -70,17 +70,18 @@ class Offer extends Model
                                 $q->select('*')
                                     ->from(function($q) use ($groups, $table) {
         
+                                        $group = array_shift($groups);
                                         
-                                        $disc = array_shift($groups);
-                                        
-                                        if(method_exists($disc->discountable, 'resolveSellables')) {
-                                            $disc->discountable->resolveSellables($q);
+                                        if(method_exists($group->sellable, 'resolveSellables')) {
+                                            // the first group is applied straight to the query
+                                            $group->sellable->resolveSellables($q);
                                         }
                                        
-                                        foreach($groups as $disc) {
-                                            if(method_exists($disc->discountable, 'resolveSellables')) {
+                                        // the remaining ones (if any) are unioned
+                                        foreach($groups as $group) {
+                                            if(method_exists($group->sellable, 'resolveSellables')) {
                                                 $q2 = DB::query();
-                                                $q->union($disc->discountable->resolveSellables($q2));
+                                                $q->union($group->sellable->resolveSellables($q2));
                                             }
                                         }
         

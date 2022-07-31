@@ -63,11 +63,11 @@ class Offer extends BaseForm {
             Screenblock::make('items')
                 ->children([
 
-                    MorphPivot::make('discountables', 'Items')
-                        ->morph('discountable')
+                    MorphPivot::make('sellables', 'Items')
+                        ->morph('sellable')
                         ->bladepath('offer::morphpivot')
                         ->optionRoute(route('sellables.autocomplete'))
-                        ->optionModel('AscentCreative\Offer\Models\Discountable')
+                        ->optionModel('AscentCreative\Offer\Models\Offer\Sellable')
                         ->labelField('label'),
 
                 ]),

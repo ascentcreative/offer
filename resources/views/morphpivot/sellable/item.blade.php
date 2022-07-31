@@ -2,6 +2,6 @@
 
 @section('item-content')
 
-    {{ $item->discountable->sellable_label }}
+    {{ $item->sellable->sellable_label }}
 
 @overwrite

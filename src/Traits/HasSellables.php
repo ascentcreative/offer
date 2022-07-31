@@ -9,21 +9,21 @@ use AscentCreative\Forms\Fields\PivotList;
 
 use Illuminate\Http\Request;
 
-trait HasDiscountables {
+trait HasSellables {
 
     use Extender;
 
-    public function initializeHasDiscountables() {
-        $this->addCapturable('discountables');
+    public function initializeHasSellables() {
+        $this->addCapturable('sellables');
     }
 
-    public function saveDiscountables($data) {
+    public function saveSellables($data) {
         // dd($data);
            
             /** Sync the licence data: */
     
             // get the ids of the existing rows:
-            $stored = $this->discountables->collect()->transform(function($item) { return $item->id; })->toArray();
+            $stored = $this->sellables->collect()->transform(function($item) { return $item->id; })->toArray();
     
             // store / update the incoming data
             $incoming = array();
@@ -31,7 +31,7 @@ trait HasDiscountables {
             if(isset($data)) {
                 foreach($data as $row) {
         
-                    $lic = $this->discountables()->updateOrCreate(
+                    $lic = $this->sellables()->updateOrCreate(
                         ['id'=>$row['id']],
                         $row
                     );
@@ -46,14 +46,14 @@ trait HasDiscountables {
     
             if (count($del) > 0) {
                 // remove the deleted rows
-                    \AscentCreative\Offer\Models\Discountable::destroy($del);
+                    \AscentCreative\Offer\Models\Offer\Sellable::destroy($del);
             }
     
         
     }
 
-    public function deleteDiscountables() {
-        $this->discountables()->delete();
+    public function deleteSellables() {
+        $this->sellables()->delete();
     }
 
    

@@ -16,7 +16,7 @@ class BuyABCForY extends Rule {
 
         $grouped = $items->groupBy('morph_key');
 
-        $itemKeys = $offer->discountables->transform(function($item) { return morphKey($item, 'discountable'); });
+        $itemKeys = $offer->sellables->transform(function($item) { return morphKey($item, 'sellable'); });
 
         $iterations = 9999;
         foreach($itemKeys as $itemKey) {
