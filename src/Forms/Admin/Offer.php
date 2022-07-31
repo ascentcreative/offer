@@ -66,7 +66,7 @@ class Offer extends BaseForm {
                     MorphPivot::make('discountables', 'Items')
                         ->morph('discountable')
                         ->bladepath('offer::morphpivot')
-                        ->optionRoute(route('offers.autocomplete.sellables'))
+                        ->optionRoute(route('sellables.autocomplete'))
                         ->optionModel('AscentCreative\Offer\Models\Discountable')
                         ->labelField('label'),
 
