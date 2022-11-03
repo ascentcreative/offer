@@ -58,7 +58,7 @@ class Offer extends Model
 
                         $groups = [];
                         foreach($offer->sellables as $sellable) {
-                            if(method_exists($sellable->sellable, 'resolveSellables')) {
+                            if(!is_null($sellable) && method_exists($sellable->sellable, 'resolveSellables')) {
                                 $groups[] = $sellable;
                             }
                         }
