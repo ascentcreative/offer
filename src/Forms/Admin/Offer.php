@@ -48,10 +48,9 @@ class Offer extends BaseForm {
                                     ]), 
 
                                 ]),
-                            // HTML::make('<div class="">', '</div>')
-                                // ->children([
-                                    \AscentCreative\CMS\Forms\Subform\Publishable::make(''),
-                                // ])
+                            
+                                \AscentCreative\CMS\Forms\Subform\Publishable::make(''),
+                            
                         ]),
                 
                    
