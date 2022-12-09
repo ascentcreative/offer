@@ -9,7 +9,7 @@ trait Discountable {
     public static function bootDiscountable() {
    
         static::deleted(function($model) {
-            
+     
             $model->offers()->detach();
             
         });

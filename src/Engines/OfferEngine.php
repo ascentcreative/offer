@@ -50,6 +50,7 @@ class OfferEngine {
                                 ->orWhereIn('code', $basket->codes);
                         })
                         ->orderBy('processing_order')
+                        ->orderBy('id')
                         ->get(); 
 
         // dd($offers->pluck('alias'));
