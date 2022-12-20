@@ -14,10 +14,18 @@ class BuyXForY extends Rule {
 
         $items = $offer->applicableItems($basket);
 
-        // dd($items);
+        // dump($items);
+
+        // return;
 
         // iterate the max number of times:
         $iterations = floor($items->count() / $cfg->quantity_required);
+
+        // dump('iterations:', $iterations);
+// return;
+
+        $itemKeys = $items->keys();
+        // dump($itemKeys);
 
         // for each iteration
         $idxItem = 0;
@@ -27,15 +35,22 @@ class BuyXForY extends Rule {
 
             $prices = \AscentCreative\CMS\Util\SplitAndRound::processEqually($cfg->total, $cfg->quantity_required);
 
+            // dump($prices);
+            // return;
+
             // apply the offer to the specified number of items
             for($j = 0; $j < $cfg->quantity_required; $j++) {
 
-                $original = $items[$idxItem]->itemPrice;
+                $basket->_items[$itemKeys[$idxItem]]->itemPrice = $prices[$j];
 
-                $value = ($items[$idxItem]->itemPrice - $prices[$j]) * -1;
+                $basket->_items[$itemKeys[$idxItem]]->offer_id = $offer->id;
+
+                // $original = $items[$idxItem]->itemPrice;
+
+                // $value = ($items[$idxItem]->itemPrice - $prices[$j]) * -1;
 
                 // dump('apply to ' . $items[$idxItem]->id);
-                $items[$idxItem]->offers()->attach($offer, ['value'=>$value, 'application_id' => $application, 'reset_data'=>['original_price'=>$original]]);
+                // $items[$idxItem]->offers()->attach($offer, ['value'=>$value, 'application_id' => $application, 'reset_data'=>['original_price'=>$original]]);
 
                 $idxItem++; 
             }

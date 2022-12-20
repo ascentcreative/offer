@@ -33,11 +33,60 @@ class Offer extends Model
                 ->with('sellable'); //, 'offer_discountables');
     }
 
+
     public function applicableItems($basket) {
+
+       $keys = [];
+
+        foreach($this->sellables as $sellable) {
+
+            $ref = new \ReflectionClass(get_class($sellable->sellable));
+            if($ref->implementsInterface(\AscentCreative\Checkout\Contracts\SellableGroup::class)) {
+                // if the sellable is a SellableGroup, we need to resolve the individual sellables within it
+                $q = DB::query();
+                $out = $sellable->sellable->resolveSellables($q)->get()->transform(function($item) {
+                    return $item->sellable_type . '_' . $item->sellable_id;
+                });
+                $keys = array_merge($keys, $out->toArray());
+            } else {
+                // otherwise, just add this one to the list
+                $keys[] = $sellable->sellable_type . '_' . $sellable->sellable_id;
+            }
+        }
+
+        // dump($keys);
+
+        // dump($basket->items());
+
+        // dd($basket->items()->first());
+
+        // dump($basket->items()->whereIn('morph_key', $keys)->filter(function($value, $key) {
+        //     return count($value->offer) == 0;
+        // }));
+
+        // dd($basket->items()->where('offer', '!=', null)->whereIn('morph_key', $keys));
+
+        return $basket->items()->whereIn('morph_key', $keys)
+                    ->whereNull('offer_id');
+
+        // dump($basket->items());
+
+        // once we have a list of the keys, we can filter the basket items to find all the matches:
+        // return $basket->items()->whereIn('morph_key', $keys);
+
+        // return $keys;
+     
+    }
+
+
+
+
+    public function oldApplicableItems($basket) {
 
         $offer = $this;
 
-        $table = $basket->items()->getRelated()->getTable();
+        // $table = $basket->items()->getRelated()->getTable();
+        $table = 'checkout_order_items';
 
         return $basket->items()
 

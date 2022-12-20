@@ -32,22 +32,30 @@ class OfferEngine {
         //     $rule = $cls::remove($offer, $basket);
         // }
 
-        $basket->offers()->detach();
+//        $basket->offers()->detach();
 
-        foreach($basket->items()->get() as $item) {
+        // dump($basket->items());
+
+        foreach($basket->items() as $item) {
             // $offers = $item->offers()->get();
             // foreach($offers as $offer) {
             //     $cls = $offer->rule_class;
             //     $rule = $cls::remove($offer, $item);
             // }
-            $item->offer()->detach();
+            // $item->offer()->detach();
+            $item->offer_id = null;
+            $item->itemPrice = $item->original_price;
+            // dump($item);
         }
+
+        // dump($basket->items());
+
 
         // get the active offers from the database
         // note the publishable trait adds a global scope to only include live ones
         $offers = Offer::where(function($q) use ($basket) {
                             $q->whereNull('code')
-                                ->orWhereIn('code', $basket->codes);
+                                ->orWhereIn('code', $basket->codes());
                         })
                         ->orderBy('processing_order')
                         ->orderBy('id')

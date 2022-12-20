@@ -22,7 +22,9 @@ class PercentDiscount extends Rule {
             foreach($items as $item) {
 
                 $application = uniqid();
-                $item->offers()->attach($offer, ['value'=>($item->itemPrice * $cfg->percentage / 100) * -1, 'application_id' => $application]);
+                // $item->offers()->attach($offer, ['value'=>($item->itemPrice * $cfg->percentage / 100) * -1, 'application_id' => $application]);
+                $item->itemPrice = $item->itemPrice * (1 - ($cfg->percentage / 100));
+                $item->offer_id = $offer->id;
 
             }
         }
